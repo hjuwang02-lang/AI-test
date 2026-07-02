@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.05a04d6f.css",
-    "main.js": "/static/js/main.67762c0a.js",
-    "static/js/453.0455eabc.chunk.js": "/static/js/453.0455eabc.chunk.js",
-    "index.html": "/index.html",
-    "main.05a04d6f.css.map": "/static/css/main.05a04d6f.css.map",
-    "main.67762c0a.js.map": "/static/js/main.67762c0a.js.map",
-    "453.0455eabc.chunk.js.map": "/static/js/453.0455eabc.chunk.js.map"
+    "main.css": "/AI-test/rpm-game/static/css/main.05a04d6f.css",
+    "main.js": "/AI-test/rpm-game/static/js/main.fd3a656e.js",
+    "static/js/453.0455eabc.chunk.js": "/AI-test/rpm-game/static/js/453.0455eabc.chunk.js",
+    "index.html": "/AI-test/rpm-game/index.html",
+    "main.05a04d6f.css.map": "/AI-test/rpm-game/static/css/main.05a04d6f.css.map",
+    "main.fd3a656e.js.map": "/AI-test/rpm-game/static/js/main.fd3a656e.js.map",
+    "453.0455eabc.chunk.js.map": "/AI-test/rpm-game/static/js/453.0455eabc.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.05a04d6f.css",
-    "static/js/main.67762c0a.js"
+    "static/js/main.fd3a656e.js"
   ]
 }
