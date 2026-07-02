@@ -3,216 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>티처블머신 가위바위보 게임</title>
-    <!-- 아이콘 폰트 (Font Awesome) 불러오기 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <title>반응형 가위바위보 게임</title>
     <style>
-        /* [기초 CSS 적용] */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center; /* 전체 중앙 정렬 */
-            background-color: #f4f4f9;
-            margin-top: 50px;
-        }
-
-        .game-title {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 30px;
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #f5f7fa;
             color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* 컨트롤 버튼 스타일 */
-        .controls {
-            margin-bottom: 20px;
+        .game-card {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
         }
 
-        .icon-btn {
-            background: none;
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            max-width: 150px;
+            padding: 12px 0;
+            font-size: 1.1rem;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 3em; /* 아이콘 크기 */
-            margin: 0 15px;
-            transition: color 0.3s, transform 0.1s;
+            font-weight: bold;
+            transition: all 0.2s;
         }
 
-        /* 시작 버튼 (초록색) */
-        #start-btn {
-            color: #2ecc71;
-        }
-        /* 중지 버튼 (빨간색) */
-        #stop-btn {
-            color: #e74c3c;
-            display: none; /* 처음엔 숨김 */
+        .start-btn {
+            background-color: #2ecc71;
+            color: white;
         }
 
-        .icon-btn:hover {
-            transform: scale(1.1); /* 호버 시 살짝 커짐 */
+        .start-btn:hover:not(:disabled) {
+            background-color: #27ae60;
         }
-        .icon-btn:disabled {
-            color: #ccc;
+
+        .stop-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .stop-btn:hover:not(:disabled) {
+            background-color: #c0392b;
+        }
+
+        /* 비활성화(disabled) 상태일 때의 기초 스타일 */
+        .btn:disabled {
+            background-color: #d6dbdf !important;
+            color: #7f8c8d !important;
             cursor: not-allowed;
+            opacity: 0.6;
         }
 
-        /* 웹캠 컨테이너 스타일 */
         #webcam-container {
+            margin: 0 auto 25px auto;
+            border: 5px solid #eceff1;
+            border-radius: 12px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-width: 350px;
+            background-color: #e0e0e0;
+            overflow: hidden;
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            align-items: center;
         }
+
         #webcam-container canvas {
-            border: 5px solid #333; /* 검은색 테두리 */
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
         }
 
-        /* 결과 표시창 스타일 (기초) */
         #result-container {
-            font-size: 1.5em;
-            font-weight: bold;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            display: inline-block; /* 내용만큼만 크기 차지 */
-            min-width: 250px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #3498db;
+            margin-top: 15px;
+            min-height: 60px;
+            word-break: keep-all;
         }
 
-        .highest-label {
-            color: #3498db; /* 강조 색상 */
-            font-size: 1.2em;
-        }
-        .highest-prob {
-            color: #7f8c8d;
-            font-size: 0.8em;
-            margin-left: 10px;
+        @media (max-width: 400px) {
+            .game-card {
+                padding: 20px 15px;
+            }
+            .title {
+                font-size: 1.6rem;
+            }
+            .btn {
+                font-size: 1rem;
+                padding: 10px 0;
+            }
+            #result-container {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="game-title">가위! 바위! 보! 게임</div>
-
-    <!-- [컨트롤 아이콘 버튼] -->
-    <div class="controls">
-        <button type="button" class="icon-btn" id="start-btn" onclick="startGame()" title="게임 시작">
-            <i class="fas fa-play-circle"></i> <!-- 시작 아이콘 -->
-        </button>
-        <button type="button" class="icon-btn" id="stop-btn" onclick="stopGame()" title="게임 중지">
-            <i class="fas fa-stop-circle"></i> <!-- 중지 아이콘 -->
-        </button>
+    <div class="game-card">
+        <div class="title">가위바위보 게임</div>
+        
+        <div class="btn-container">
+            <button type="button" id="start-btn" class="btn start-btn" onclick="init()">시작</button>
+            <button type="button" id="stop-btn" class="btn stop-btn" onclick="stopGame()" disabled>중지</button>
+        </div>
+        
+        <div id="webcam-container"></div>
+        <div id="result-container">준비 완료</div>
     </div>
 
-    <!-- 웹캠 화면 -->
-    <div id="webcam-container"></div>
-    
-    <!-- [가장 높은 확률 결과 표시창] -->
-    <div id="result-container">
-        <div>현재 상태</div>
-        <div id="highest-prediction">게임을 시작해주세요.</div>
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<script type="text/javascript">
+    const URL = "https://teachablemachine.withgoogle.com/models/w1zgnmOvc9/";
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-    
-    <script type="text/javascript">
-        // 티처블 머신 모델 URL (제공해주신 URL 유지)
-        const URL = "https://teachablemachine.withgoogle.com/models/vWtLxI18T8/";
+    let model, webcam, resultContainer, maxPredictions;
+    let predictionInterval;
+    let isPlaying = false;
 
-        let model, webcam, maxPredictions;
-        let isPlaying = false; // 게임 진행 상태 플래그
-        let predictInterval; // [0.5초 주기를 위한 변수]
+    // 버튼 엘리먼트 가져오기 편리하도록 변수 선언
+    let startBtn, stopBtn;
 
-        const startBtn = document.getElementById("start-btn");
-        const stopBtn = document.getElementById("stop-btn");
-        const highestPredictionContainer = document.getElementById("highest-prediction");
+    async function init() {
+        if (isPlaying) return; 
 
-        // [초기화 및 웹캠 설정 (기존 init 함수 수정)]
-        async function initWebcam() {
-            startBtn.disabled = true; // 로딩 중 버튼 비활성화
-            highestPredictionContainer.innerHTML = "모델 로딩 중...";
+        startBtn = document.getElementById("start-btn");
+        stopBtn = document.getElementById("stop-btn");
+        resultContainer = document.getElementById("result-container");
+        
+        // 로딩 중에는 두 버튼 모두 잠시 비활성화
+        startBtn.disabled = true;
+        stopBtn.disabled = true;
+        resultContainer.innerHTML = "로딩 중...";
 
+        if (!model) {
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
-
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
+        }
 
+        if (!webcam) {
             const flip = true; 
-            webcam = new tmImage.Webcam(200, 200, flip); 
-            await webcam.setup(); // 웹캠 접근 권한 요청
-            
+            webcam = new tmImage.Webcam(400, 400, flip); 
+            await webcam.setup(); 
             document.getElementById("webcam-container").appendChild(webcam.canvas);
-            startBtn.disabled = false;
-            highestPredictionContainer.innerHTML = "준비 완료! 시작 버튼을 눌러주세요.";
+            window.requestAnimationFrame(loop);
         }
 
-        // [게임 시작 함수]
-        async function startGame() {
-            if (isPlaying) return; // 이미 실행 중이면 무시
-            
-            // 웹캠이 초기화되지 않았다면 먼저 초기화
-            if (!webcam) {
-                await initWebcam();
-            }
+        await webcam.play();
+        isPlaying = true;
 
-            await webcam.play();
-            isPlaying = true;
+        predictionInterval = setInterval(predict, 500);
+        resultContainer.innerHTML = "시작!";
 
-            // 버튼 상태 변경
-            startBtn.style.display = "none";
-            stopBtn.style.display = "inline-block";
-            
-            // [0.5초마다 predict 함수 실행 (핵심 수정)]
-            predictInterval = setInterval(predict, 500); 
+        // 게임이 시작되었으므로 [중지] 버튼만 활성화
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+    }
+
+    async function loop() {
+        webcam.update(); 
+        window.requestAnimationFrame(loop);
+    }
+
+    function stopGame() {
+        if (!isPlaying) return; 
+
+        clearInterval(predictionInterval);
+        
+        if (webcam) {
+            webcam.pause();
         }
 
-        // [게임 중지 함수]
-        function stopGame() {
-            if (!isPlaying) return; // 이미 중지 중이면 무시
+        isPlaying = false;
+        resultContainer.innerHTML = "중지됨";
 
-            webcam.stop();
-            isPlaying = false;
+        // 게임이 멈췄으므로 [시작] 버튼만 활성화
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+    }
 
-            // 버튼 상태 변경
-            startBtn.style.display = "inline-block";
-            stopBtn.style.display = "none";
+    async function predict() {
+        if (!isPlaying) return;
 
-            // [0.5초 주기 실행 중지]
-            clearInterval(predictInterval); 
-            highestPredictionContainer.innerHTML = "게임 중지됨.";
-        }
+        const prediction = await model.predict(webcam.canvas);
+        
+        let highestClassName = "";
+        let highestProbability = 0;
 
-        // [가장 높은 확률값만 화면에 띄우도록 수정 (기존 predict 함수 수정)]
-        async function predict() {
-            if (!isPlaying) return; // 중지 상태라면 예측 안 함
-            
-            webcam.update(); // 웹캠 프레임 업데이트
-            const prediction = await model.predict(webcam.canvas);
-
-            let highestClassName = "";
-            let highestProbability = 0;
-
-            // 모든 결과 중 가장 확률이 높은 클래스 찾기
-            for (let i = 0; i < maxPredictions; i++) {
-                if (prediction[i].probability > highestProbability) {
-                    highestClassName = prediction[i].className;
-                    highestProbability = prediction[i].probability;
-                }
-            }
-
-            // [결과 화면 업데이트]
-            // 확률이 아주 낮을 때는 표시하지 않거나 "계산 중" 등으로 표시할 수 있음
-            if (highestProbability > 0.1) { // 최소 확률 문턱값 (기초 CSS 적용을 위해 간단히 처리)
-                highestPredictionContainer.innerHTML = 
-                    `<span class="highest-label">${highestClassName}</span>` +
-                    `<span class="highest-prob">(${(highestProbability * 100).toFixed(0)}%)</span>`;
-            } else {
-                highestPredictionContainer.innerHTML = "계산 중...";
+        for (let i = 0; i < maxPredictions; i++) {
+            if (prediction[i].probability > highestProbability) {
+                highestProbability = prediction[i].probability;
+                highestClassName = prediction[i].className;
             }
         }
-    </script>
+
+        if (highestClassName) {
+            resultContainer.innerHTML = highestClassName;
+        }
+    }
+</script>
 
 </body>
 </html>
